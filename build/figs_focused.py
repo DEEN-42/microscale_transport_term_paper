@@ -71,7 +71,7 @@ for x in np.arange(0.6, 9.3, 0.8):
 ax.text(5.0, 3.3, "heat out through the whole cooler surface", ha="center", va="center", fontsize=13.5, fontweight="bold")
 arrow(ax, (9.7, 0.96), (1.9, 0.96), color=PINE, lw=3.5, ms=22)                   # liquid back to the evaporator
 arrow(ax, (9.7, 2.52), (2.7, 2.52), color=PINE, lw=3.5, ms=22)
-badge(ax, 3.2, 1.36, 3, r=0.2, fs=12)
+badge(ax, 3.2, 1.36, 2, r=0.2, fs=12)
 ax.text(3.5, 1.36, "Vapour flow in a thin core", va="center", fontsize=14.5, color=PINE, fontweight="bold")
 ax.text(7.55, 1.36, "condensation", va="center", ha="center", fontsize=13.5, color=PINE, fontweight="bold")
 badge(ax, 3.0, 0.42, 1, r=0.2, fs=12)
@@ -80,13 +80,96 @@ ax.annotate("", xy=(10.25, 1.16), xytext=(10.25, 2.32), arrowprops=dict(arrowsty
 ax.text(10.33, 1.74, "h", fontsize=15, style="italic", va="center")
 ax.annotate("", xy=(10.25, 0.76), xytext=(10.25, 1.16), arrowprops=dict(arrowstyle="<->", color=INK, lw=1.3))
 ax.text(10.33, 0.96, "$t$", fontsize=16, va="center")
-badge(ax, 11.3, 2.15, 2, r=0.2, fs=12)
-ax.text(11.3, 1.5, "Wick and core\nshare a fixed\nthickness", ha="center", va="center", fontsize=13.5, color=PINE, fontweight="bold")
 ax.plot([x0, x1], [0.06, 0.06], color=INK, lw=1.2)                               # radial scale: 0, R1, R2
 for xt, lab in ((x0, "0"), (xr1, "$R_1$"), (x1, "$R_2$")):
     ax.plot([xt, xt], [0.0, 0.12], color=INK, lw=1.2); ax.text(xt, -0.16, lab, ha="center", va="center", fontsize=14)
 ax.text(6.2, -0.16, "radial distance from the centre line", ha="center", va="center", fontsize=12)
 save(fig, "g1_cycle.png")
+
+# ---------------------------------------------------------------- G13 applications: four schematic layouts, drawn at slide size (5.9 x 1.75 in)
+from matplotlib.patches import FancyBboxPatch
+AW, AH = 5.9, 1.75
+
+def label(ax, x, y, text, bold=False, color=INK, ha="left", fs=13.5):
+    ax.text(x, y, text, ha=ha, va="center", fontsize=fs, fontweight="bold" if bold else "normal", color=color, zorder=10)
+
+def leader(ax, a, b):
+    ax.plot([a[0], b[0]], [a[1], b[1]], color=INK, lw=1.1, zorder=9); ax.plot(*b, "o", ms=4.5, mfc="white", mec=INK, zorder=9)
+
+# a. phone, side view: the chamber under the display spreads the chip's heat sideways
+fig, ax = canvas(AW, AH, AW, AH)
+ax.add_patch(FancyBboxPatch((0.12, 0.12), 3.6, 1.5, boxstyle="round,pad=0,rounding_size=0.14", fc="white", ec=INK, lw=2))
+ax.add_patch(Rectangle((0.28, 1.4), 3.28, 0.1, fc=INK, ec="none"))                                  # display
+ax.add_patch(Rectangle((0.28, 1.34), 3.28, 0.04, fc=INK, ec="none"))                                # chamber top wall
+ax.add_patch(Rectangle((0.28, 1.30), 3.28, 0.04, fc=SAGE, ec="none"))
+ax.add_patch(Rectangle((0.28, 1.12), 3.28, 0.18, fc=TINT, ec="none"))                               # vapour core
+ax.add_patch(Rectangle((0.28, 1.08), 3.28, 0.04, fc=SAGE, ec="none"))
+ax.add_patch(Rectangle((0.28, 1.04), 3.28, 0.04, fc=INK, ec="none"))
+ax.add_patch(Rectangle((0.28, 0.24), 1.35, 0.72, fc=MIST, ec=INK, lw=1)); label(ax, 0.95, 0.60, "battery", ha="center")
+ax.add_patch(Rectangle((1.8, 0.62), 1.76, 0.06, fc=SAGE, ec="none"))                                # circuit board
+ax.add_patch(Rectangle((2.2, 0.68), 0.55, 0.36, fc=INK, ec="none"))                                 # chip
+label(ax, 2.475, 0.86, "chip", ha="center", color="white", fs=12)
+arrow(ax, (2.475, 1.04), (2.475, 1.2), color=FERN, lw=2.2, ms=12, zorder=8)
+arrow(ax, (2.35, 1.21), (0.45, 1.21), color=FERN, lw=2.6, ms=14, zorder=8); arrow(ax, (2.6, 1.21), (3.4, 1.21), color=FERN, lw=2.6, ms=14, zorder=8)
+label(ax, 3.95, 1.6, "display"); label(ax, 3.95, 1.2, "vapour chamber,\nunder 1 mm thick", bold=True, color=PINE)
+label(ax, 3.95, 0.82, "heat spreads sideways", bold=True, color=FERN); label(ax, 3.95, 0.5, "instead of one hot spot")
+leader(ax, (3.9, 1.21), (3.5, 1.21))
+save(fig, "g13a_phone.png", transparent=True)
+
+# b. laptop, top view: heat pipe from the CPU to a finned sink with a fan
+fig, ax = canvas(AW, AH, AW, AH)
+ax.add_patch(Rectangle((0.1, 0.3), 5.7, 1.0, fc="white", ec="none"))                                    # board
+ax.add_patch(Rectangle((0.3, 0.47), 0.7, 0.6, fc=INK, ec="none")); label(ax, 0.65, 0.77, "CPU", ha="center", color="white", fs=12.5)
+ax.add_patch(Rectangle((0.3, 0.64), 3.0, 0.26, fc=SAGE, ec=PINE, lw=2, zorder=4))                    # heat pipe
+ax.add_patch(Rectangle((0.3, 0.64), 0.7, 0.26, fc=FERN, ec=PINE, lw=2, zorder=5))
+arrow(ax, (1.1, 0.82), (3.05, 0.82), color="white", lw=2.4, ms=13, zorder=8)                        # vapour out
+arrow(ax, (3.2, 0.71), (1.15, 0.71), color=PINE, lw=2.4, ms=13, zorder=8)                           # liquid back
+for x in np.arange(2.5, 3.5, 0.16):
+    ax.add_patch(Rectangle((x, 0.52), 0.06, 0.62, fc=FERN, ec="none", zorder=3))                     # fins
+ax.add_patch(Circle((4.35, 0.77), 0.5, fc="white", ec=INK, lw=2))
+for a_ in range(0, 360, 72):
+    ax.add_patch(Wedge((4.35, 0.77), 0.44, a_, a_ + 36, fc=INK, ec="none"))
+for y_ in (0.55, 0.77, 0.99):
+    arrow(ax, (4.95, y_), (5.6, y_), color=FERN, lw=2.2, ms=12)
+label(ax, 0.65, 1.52, "evaporator", bold=True, color=PINE, ha="center")
+label(ax, 1.5, 1.52, "heat pipe: vapour →, liquid ←", bold=True, color=PINE)
+label(ax, 5.3, 1.52, "hot air out", bold=True, ha="center")
+label(ax, 3.0, 0.15, "fins", ha="center", bold=True)
+label(ax, 4.35, 0.15, "fan", ha="center", bold=True)
+save(fig, "g13b_laptop.png", transparent=True)
+
+# c. LED lamp, side view: vapour-chamber base spreads the LED hot spot, heat pipes lift it into the fins
+fig, ax = canvas(AW, AH, AW, AH)
+ax.add_patch(Rectangle((0.3, 0.38), 2.5, 0.1, fc=INK, ec="none"))                                    # LED board
+for x in np.arange(0.5, 2.7, 0.5):
+    ax.add_patch(Rectangle((x, 0.28), 0.22, 0.1, fc="white", ec=INK, lw=1.2))
+    for dx in (-0.2, 0.0, 0.2):
+        ax.plot([x + 0.11, x + 0.11 + dx], [0.28, 0.04], color=SAGE, lw=1.6)
+ax.add_patch(Rectangle((0.3, 0.48), 2.5, 0.2, fc=PINE, ec="none"))                                   # vapour chamber base
+ax.add_patch(Rectangle((0.3, 0.68), 2.5, 0.06, fc=SAGE, ec="none"))
+for x in (0.75, 1.55, 2.35):
+    ax.add_patch(Rectangle((x - 0.07, 0.74), 0.14, 0.7, fc=SAGE, ec=PINE, lw=1.5, zorder=3))
+    arrow(ax, (x, 0.8), (x, 1.3), color="white", lw=2.2, ms=12, zorder=8)
+for y in np.arange(0.92, 1.5, 0.14):
+    ax.add_patch(Rectangle((0.3, y), 2.5, 0.05, fc=FERN, ec="none", zorder=2))                       # fins
+label(ax, 3.1, 1.3, "fins", bold=True); label(ax, 3.1, 1.02, "heat pipes", bold=True, color=PINE)
+label(ax, 3.1, 0.6, "vapour chamber base", bold=True, color=PINE); label(ax, 3.1, 0.34, "LED board"); label(ax, 3.1, 0.1, "light out", color=FERN, bold=True)
+save(fig, "g13c_led.png", transparent=True)
+
+# d. satellite radiator panel, top view: heat pipes spread the electronics' heat over the whole panel, which radiates it to space
+fig, ax = canvas(AW, AH, AW, AH)
+ax.add_patch(Rectangle((0.3, 0.2), 3.3, 1.1, fc=MIST, ec=INK, lw=2))                                # panel
+for y in (0.35, 0.55, 0.75, 0.95, 1.15):
+    ax.plot([0.35, 3.55], [y, y], color=PINE, lw=3.4, solid_capstyle="round", zorder=3)             # embedded heat pipes
+    arrow(ax, (1.55, y), (3.4, y), color=FERN, lw=1.6, ms=9, zorder=6)
+ax.add_patch(Rectangle((0.45, 0.3), 0.85, 0.9, fc=INK, ec="none", zorder=5)); label(ax, 0.875, 0.75, "electronics", ha="center", color="white", fs=11.5)
+for x in (1.9, 2.5, 3.1):
+    arrow(ax, (x, 1.34), (x, 1.64), color=INK, lw=2.2, ms=12)                                         # radiated to space
+label(ax, 3.85, 1.5, "radiator panel", bold=True); label(ax, 3.85, 1.22, "heat pipes inside", bold=True, color=PINE)
+label(ax, 3.85, 0.8, "no gravity: the wick\nreturns the liquid", bold=True, color=PINE)
+label(ax, 3.85, 0.35, "heat leaves as radiation", fs=13)
+save(fig, "g13d_satellite.png", transparent=True)
+print("application figures written")
 
 # ---------------------------------------------------------------- G0 title-slide motif (on dark background)
 fig, ax = canvas(13.333, 2.6, 13.333, 2.6)

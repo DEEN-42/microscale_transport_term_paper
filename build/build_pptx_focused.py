@@ -1,4 +1,4 @@
-"""Builds Presentation_3min_Micro_Heat_Pipes_and_Vapour_Chambers.pptx (python-pptx): 3 minutes, 3 topics, 7 slides.
+"""Builds Presentation_3min_Micro_Heat_Pipes_and_Vapour_Chambers.pptx (python-pptx): 3 minutes, 2 topics + applications, 7 slides.
 Run after focused_model.py and figs_focused.py. Numbers come from numbers.json and focused_model.py.
 Charts are native PowerPoint charts; illustrations and equations are images from figs_focused.py / mathtext."""
 import copy, os, re, sys
@@ -17,7 +17,7 @@ from pptx.oxml import parse_xml
 from pptx.oxml.ns import qn
 from pptx.util import Inches, Pt
 from focused_model import *
-from talk_script import head, running, clock, EQ_SPLIT, EQ_OPT
+from talk_script import head, running, clock
 
 ROOT = os.path.join(HERE, ".."); FIGD = os.path.join(ROOT, "figures")
 OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "Presentation_3min_Micro_Heat_Pipes_and_Vapour_Chambers.pptx")
@@ -161,7 +161,7 @@ s = prs.slides.add_slide(BLANK)
 bg = s.background.fill; bg.solid(); bg.fore_color.rgb = cINK
 tb(s, 0.75, 0.62, 11.8, 0.35, "MICROSCALE TRANSPORT PROCESSES · TERM PAPER", size=14, bold=True, color=cSAGE, name="Course")
 tb(s, 0.75, 1.1, 11.8, 1.6, "Micro Heat Pipes and Vapour Chambers", size=46, bold=True, color=cWHITE, font=HEAD_FONT, name="Title")
-tb(s, 0.75, 2.1, 11.8, 0.6, "Liquid return in the wick, wick-thickness optimisation and vapour flow in a thin core", size=22, color=cMIST, name="Subtitle")
+tb(s, 0.75, 2.1, 11.8, 0.6, "Liquid return in the wick and vapour flow in a thin core", size=22, color=cMIST, name="Subtitle")
 pic(s, "g0_title_band.png", 0, 3.0, w=13.333, alt="Stylised vapour chamber cross-section with vapour flowing right through the core and liquid returning left through the wicks.")
 tb(s, 0.75, 6.0, 11.8, 0.4, "Debanshu Ghosh · Roll No. 23CH3FP56", size=20, bold=True, color=cWHITE, name="Author")
 tb(s, 0.75, 6.45, 11.8, 0.4, "Department of Chemical Engineering, IIT Kharagpur", size=16, color=cMIST, name="Department")
@@ -181,7 +181,7 @@ s = new_slide("OVERVIEW", "A capillary pump must beat every loss in the loop",
     "4. Gravity: ΔP_g = ρ_l g Δz. Substitute with equality and solve for Q: Q_max = (ΔP_cap − ρ_l g Δz)/(a_l + a_v).\n\n"
     "IF ASKED\n"
     "Numbers use saturated water at 60 °C and an illustrative disc: R1 = 5.64 mm (10 × 10 mm source), R2 = 48 mm (same area as a 60 × 120 mm sheet). They are not measured device data.")
-pic(s, "g1_cycle.png", 0.97, 1.35, w=11.2, alt="Half section of a vapour chamber. The chip sits under the centre line. Vapour flows outward through the core (topic 3) and condenses over the whole cooler top surface, where heat leaves. Liquid returns through the top wick, down the wick columns and along the bottom wick to the chip (topic 1). Wick thickness t and core height h share a fixed total (topic 2).")
+pic(s, "g1_cycle.png", 0.97, 1.35, w=11.2, alt="Half section of a vapour chamber. The chip sits under the centre line. Vapour flows outward through the core (topic 2) and condenses over the whole cooler top surface, where heat leaves. Liquid returns through the top wick, down the wick columns and along the bottom wick to the chip (topic 1). ")
 box(s, 0.6, 5.05, 12.13, 1.72, name="Pressure budget card")
 tb(s, 0.85, 5.15, 5.7, 0.3, "The pressure budget", size=14, bold=True, color=cPINE)
 eq(s, r"\Delta P_{cap}\;\geq\;\Delta P_{l}+\Delta P_{v}+\Delta P_{g}", "budget", 0.85, 5.72, 0.56, w_box=5.6, alt="Delta P cap is at least Delta P l plus Delta P v plus Delta P g")
@@ -240,60 +240,10 @@ stat(s, 10.35, 4.85, 2.38, "37%", "lower surface ΔT in a\nsimulation (Patankar 
 box(s, 0.6, 5.75, 6.2, 1.12, name="Caveat card")
 tb(s, 0.85, 5.75, 5.7, 1.12, [("Upper bound, not a prediction: ", dict(bold=True, color=cPINE)), ("it assumes the fine and coarse regions do not interfere.", {})], size=16, anchor=MSO_ANCHOR.MIDDLE, name="Caveat")
 
-# ---------------------------------------------------------------- 5 thickness
-o50 = opt[S50]; oM = opt[MESH]; o10 = opt[S10]
-ex = out["split_examples"]
-s = new_slide("TOPIC 2 · THICKNESS OPTIMISATION", "In a fixed thickness, every wick has a best split",
-    head(5) +
-    "HOW THE FORMULA COMES\n"
-    "1. Constraint: H = 2t + h, so h = H − 2t and dh/dt = −2.\n"
-    "2. From the earlier slides, with t_l = 2t, the liquid resistance is a_l = C_l/t with C_l = μ_l ln(R2/R1)/(4π ρ_l K h_fg), and the vapour resistance is a_v = C_v/h³ with C_v = 6 μ_v ln(R2/R1)/(π ρ_v h_fg). The slide shows both in one expression, with ln(R2/R1)/(π h_fg) factored out.\n"
-    "3. ΔP_cap does not depend on t, so maximum Q means minimum (a_l + a_v). Differentiate: d/dt [C_l/t + C_v/h³] = −C_l/t² + 6C_v/h⁴ = 0. (The 6 is 3 from the cube times 2 from dh/dt = −2.)\n"
-    "4. Rearrange: h⁴/t² = 6C_v/C_l = 144 K (μ_v/ρ_v)/(μ_l/ρ_l). Take the root: h²/t = 12 √(K ν_v/ν_l), where ν = μ/ρ is kinematic viscosity.\n\n"
-    "NUMBERS\n"
-    f"Water at 60 °C: ν_v/ν_l = {nu_ratio:.0f}. For d = 50 µm, K = 8.33e-12 m²: 12√(K·{nu_ratio:.0f}) = {o50['G_um']:.0f} µm.\n"
-    f"Then (250 − 2t)² = {o50['G_um']:.0f} t gives t = {o50['t_um']:.1f} µm, h = {o50['h_um']:.0f} µm. The numerical sweep agrees (50 µm).\n"
-    f"All three wicks: mesh t = {oM['t_um']:.0f} µm, {oM['Q_opt']:.0f} W; 50 µm powder t = {o50['t_um']:.0f} µm, {o50['Q_opt']:.0f} W; 10 µm powder t = {o10['t_um']:.0f} µm, {o10['Q_opt']:.0f} W.\n\n"
-    "WHAT IT TELLS YOU\n"
-    "• The optimum does not depend on Q, σ, θ or R2/R1, only on K and the fluid. Lower K pushes the optimum to a thicker wick.\n"
-    f"• At the optimum a_l/a_v = 6t/h, so the loss split is not 50:50. It is {o50['al_over_av']:.1f}:1 for the 50 µm powder.\n\n"
-    "IF ASKED\n"
-    f"This maximises the capillary limit only, not thermal resistance. At these ceiling loads the vapour drop is no longer small: {o50['dP_v_at_Qopt_kPa']:.1f} kPa for the 50 µm powder (about 21% of P_sat), so read the watts as trends. The closed-form derivation is mine, not from a cited paper; it was checked against the sweep.")
-pic(s, "g5_split.png", 0.6, 1.8, w=5.9, alt=f"Three 250 micron stacks of the 50 micron powder: thin wick gives {ex[0]['Q']:.0f} W, best split gives {ex[1]['Q']:.0f} W, thin core gives {ex[2]['Q']:.0f} W.")
-eq_card(s, 0.6, 4.95, 7.55, 1.92, "Minimise liquid + vapour resistance, with h = H − 2t", EQ_SPLIT, "split", eh=0.95, alt="a l plus a v equals ln R2 over R1 over pi h fg, times mu l over 4 rho l K t plus 6 mu v over rho v h cubed")
-eq_card(s, 8.3, 4.95, 4.43, 1.92, "Optimum: set the derivative to zero", EQ_OPT, "opt", eh=0.86, alt="h squared over t equals 12 root of K nu v over nu l")
-xd = XyChartData(number_format="0")
-for n in (S50, S10, MESH):
-    se = xd.add_series(SHORT[n])
-    for t_, q_ in zip(out["sweep"]["tw_um"], out["sweep"][n]): se.add_data_point(t_, round(q_, 1))
-for n in (S50, S10, MESH):
-    se = xd.add_series(f"Optimum, {SHORT[n]}"); se.add_data_point(round(opt[n]["t_um"], 1), round(opt[n]["Q_opt"], 1))
-gf = s.shapes.add_chart(XL_CHART_TYPE.XY_SCATTER_SMOOTH_NO_MARKERS, Inches(6.6), Inches(1.4), Inches(6.13), Inches(3.4), xd); gf.name = "Chart: capillary limit vs wick thickness"
-ch = gf.chart; style_chart(ch, ytitle="Capillary limit (W)", xtitle="Each wick layer, t (µm), with h = 250 − 2t", legend=True)
-ch.value_axis.minimum_scale = 0; ch.value_axis.maximum_scale = 120; ch.value_axis.major_unit = 20
-ch.category_axis.minimum_scale = 10; ch.category_axis.maximum_scale = 100; ch.category_axis.major_unit = 10
-sers = list(ch.plots[0].series)
-for se, c, w_ in zip(sers[:3], (cPINE, cINK, cSAGE), (3.5, 2.25, 2.25)):
-    se.format.line.color.rgb = c; se.format.line.width = Pt(w_); se.smooth = True; se.marker.style = XL_MARKER_STYLE.NONE
-for se, c, n in zip(sers[3:], (cPINE, cINK, cSAGE), (S50, S10, MESH)):
-    se.format.line.fill.background(); se.marker.style = XL_MARKER_STYLE.CIRCLE; se.marker.size = 12
-    se.marker.format.fill.solid(); se.marker.format.fill.fore_color.rgb = c; se.marker.format.line.color.rgb = cINK
-    dl = se.points[0].data_label; tf = dl.text_frame; tf.text = f"{opt[n]['t_um']:.0f} µm, {opt[n]['Q_opt']:.0f} W"
-    tf.paragraphs[0].runs[0].font.size = Pt(13); tf.paragraphs[0].runs[0].font.bold = True; tf.paragraphs[0].runs[0].font.color.rgb = cINK
-    dl.position = XL_LABEL_POSITION.ABOVE
-    if n == S10:
-        lbl = dl._dLbl; lay = parse_xml('<c:layout xmlns:c="http://schemas.openxmlformats.org/drawingml/2006/chart"><c:manualLayout><c:x val="0.075"/><c:y val="-0.05"/></c:manualLayout></c:layout>')
-        lbl.insert(1, lay)
-# keep the optimum markers out of the legend: they are labelled directly
-leg = ch.legend._element
-for i in (3, 4, 5):
-    le = etree.SubElement(leg, qn("c:legendEntry")); etree.SubElement(le, qn("c:idx")).set("val", str(i)); etree.SubElement(le, qn("c:delete")).set("val", "1")
-    leg.remove(le); leg.insert(1 + i - 3, le)
-
-# ---------------------------------------------------------------- 6 vapour core
+# ---------------------------------------------------------------- 5 vapour core
 vs = out["vs_copper"]; cu = {int(v["h_um"]): v for v in vs}
-s = new_slide("TOPIC 3 · VAPOUR FLOW IN A THIN CORE", "Halve the gap: 8× the drop, and copper catches up",
-    head(6) +
+s = new_slide("TOPIC 2 · VAPOUR FLOW IN A THIN CORE", "Halve the gap: 8× the drop, and copper catches up",
+    head(5) +
     "HOW THE FORMULAS COME\n"
     "Plane Poiseuille flow between plates a gap h apart: the mean velocity is u = (h²/12μ)(−dP/dr), so dP/dr = −12 μ_v u / h².\n"
     "Mass conservation for radial flow: the flow area at radius r is 2π r h, so u = ṁ/(ρ_v 2π r h). Velocity falls as 1/r.\n"
@@ -338,13 +288,35 @@ for i, v in enumerate(vs):
     tb(s, 7.2 + i * 1.36, 6.1, 1.3, 0.42, txt, size=22, bold=True, color=cPINE, align=PP_ALIGN.CENTER, font=HEAD_FONT)
     tb(s, 7.2 + i * 1.36, 6.5, 1.3, 0.28, f"{v['h_um']:.0f} µm" + ("  *trend" if v["h_um"] < 60 else ""), size=12, color=cINK, align=PP_ALIGN.CENTER)
 
+# ---------------------------------------------------------------- 6 applications
+s = new_slide("APPLICATIONS", "Where heat must move with no pump",
+    head(6) +
+    "ABOUT THE DRAWINGS\n"
+    "They are schematic layouts of the usual arrangement, not specific products.\n"
+    "Phone: side view. The chip's heat enters the vapour chamber under the display and spreads sideways, so the hot spot is flattened. The chamber is under 1 mm thick, which is why the vapour core (topic 2) is the tight limit.\n"
+    "Laptop: top view. A heat pipe carries heat from the CPU to a finned sink; the fan blows air through the fins. Vapour goes to the cold end, liquid returns through the wick (topic 1).\n"
+    "LED lamp: side view. The LED board sits on a vapour-chamber base that spreads the hot spot; heat pipes lift the heat into the fin stack.\n"
+    "Satellite: top view of a radiator panel. Heat pipes embedded in the panel spread the electronics' heat across it, and the panel radiates it to space. With no gravity the pressure budget has no gravity term, and the wick alone returns the liquid.\n"
+    "\n"
+    "IF ASKED\n"
+    "Phones, laptops, LED lighting and spacecraft panels are all standard uses of heat pipes and vapour chambers. The paper's own case is the phone. I did not model the other three; they show where the same two limits appear.")
+APPS = (("Smartphone", "chamber under the display", "g13a_phone.png", "Limit: the vapour core, under 1 mm thick (topic 2)", "Side view of a phone: the chip heats the vapour chamber under the display, and the heat spreads sideways through the chamber."),
+        ("Laptop", "heat pipe to the fan", "g13b_laptop.png", "Limit: liquid return along a long wick (topic 1)", "Top view of a laptop: a heat pipe carries heat from the CPU to a finned heat sink; vapour flows to the fins, liquid returns, and a fan blows the heat out."),
+        ("High-power LED lamp", "chamber base, heat pipes", "g13c_led.png", "Limit: the wick must keep up at the hot spot (topic 1)", "Side view of an LED lamp: the LED board sits on a vapour chamber base, and heat pipes carry the heat up into a stack of fins."),
+        ("Satellite radiator panel", "no gravity needed", "g13d_satellite.png", "In zero gravity the gravity term in the budget is zero", "Top view of a satellite radiator panel: heat pipes embedded in the panel spread the electronics' heat across it, and the panel radiates it to space."))
+for i, (ttl, sub, img, lim, alt) in enumerate(APPS):
+    cx_, cy_ = 0.6 + (i % 2) * 6.17, 1.4 + (i // 2) * 2.77
+    box(s, cx_, cy_, 5.96, 2.67, name="Card " + ttl)
+    tb(s, cx_ + 0.2, cy_ + 0.1, 5.6, 0.32, [(ttl, dict(bold=True, color=cPINE)), ("  ·  " + sub, dict(size=14))], size=17, name="Title " + ttl)
+    pic(s, img, cx_ + 0.03, cy_ + 0.45, w=5.9, alt=alt)
+    tb(s, cx_ + 0.2, cy_ + 2.27, 5.6, 0.3, lim, size=14, bold=True, color=cFERN, name="Limit " + ttl)
+
 # ---------------------------------------------------------------- 7 references
-s = prs.slides.add_slide(DARK); s.shapes.title.text = "Three results, and where they come from"
+s = prs.slides.add_slide(DARK); s.shapes.title.text = "Two results, and where they come from"
 tb(s, 0.6, 0.3, 11, 0.3, "REFERENCES", size=14, bold=True, color=cSAGE, name="Section label")
 for i, (t, b) in enumerate((("Wick", "One length sets pump and resistance; biporous wicks separate them"),
-                            ("Thickness", "h²/t = 12√(K νᵥ/νₗ) gives the best split"),
                             ("Vapour", "ΔPᵥ ∝ 1/h³, so thin cores become the bottleneck"))):
-    y = 1.65 + i * 1.65
+    y = 1.9 + i * 2.0
     c = s.shapes.add_shape(MSO_SHAPE.OVAL, Inches(0.6), Inches(y), Inches(0.62), Inches(0.62)); c.fill.solid(); c.fill.fore_color.rgb = cSAGE; c.line.fill.background(); c.shadow.inherit = False; c.name = f"Badge {i+1}"
     c.text_frame.text = str(i + 1); pp = c.text_frame.paragraphs[0]; pp.alignment = PP_ALIGN.CENTER; pp.runs[0].font.size = Pt(20); pp.runs[0].font.bold = True; pp.runs[0].font.color.rgb = cINK
     c.text_frame.vertical_anchor = MSO_ANCHOR.MIDDLE; c.text_frame.margin_left = c.text_frame.margin_right = c.text_frame.margin_top = c.text_frame.margin_bottom = 0

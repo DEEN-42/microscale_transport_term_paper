@@ -58,7 +58,7 @@ def eqimg(tex, width_max=11.5):
 story = []
 tot_words = sum(len(s["say"].split()) for s in SLIDES)
 story += [Paragraph("Speaking script", S["title"]),
-          P(f"Micro heat pipes and vapour chambers: liquid return in the wick, wick-thickness optimisation, vapour flow in a thin core. "
+          P(f"Micro heat pipes and vapour chambers: liquid return in the wick, vapour flow in a thin core, applications. "
             f"Debanshu Ghosh, 23CH3FP56. About {tot_words} spoken words, {clock(running()[-1])} at 150 words a minute."
             , "sub")]
 
@@ -70,7 +70,7 @@ t.setStyle(TableStyle([("GRID", (0, 0), (-1, -1), 0.4, SAGEc), ("BACKGROUND", (0
                        ("TOPPADDING", (0, 0), (-1, -1), 3), ("BOTTOMPADDING", (0, 0), (-1, -1), 3)]))
 story += [t, Spacer(1, 8), Paragraph("HOW TO USE THIS", S["lab"])]
 for b in ("Say it, do not read the slide. The slide carries the picture and the formula; the script carries the sentence that connects them. The deck's speaker notes hold the same words, plus how each formula is derived.",
-          f"Each slide gets 24 to 34 seconds. If you are behind at the halfway mark (slide 4 should end at {clock(running()[3])}), drop the 37% sentence first, then the saturated-vapour sentence on slide 6.",
+          f"Each slide gets 24 to 34 seconds. If you are behind at the halfway mark (slide 4 should end at {clock(running()[3])}), drop the 37% sentence first, then the saturated-vapour sentence on slide 5.",
           "Rehearse once aloud with a timer. Silent reading is always faster than speaking."):
     story.append(Paragraph(fmt(b), S["bul"], bulletText="•"))
 story.append(Paragraph("NUMBERS TO HAVE IN YOUR HEAD", S["lab"]))
@@ -78,7 +78,6 @@ o50 = out["wick"][S50]
 nums = [("5× and 25×", "pump pressure and liquid resistance, 10 µm against 50 µm powder"),
         (f"{_bar[0]:.0f}, {_bar[1]:.0f}, {_bar[2]:.0f} W", "fine, coarse and biporous capillary limits at a 100 µm core (biporous is an upper bound)"),
         ("37%", "lower peak-to-mean condenser surface ΔT in Patankar's simulation, biporous condenser wick"),
-        (f"{_o50['t_um']:.0f} µm, {round(_o50['h_um'], -1):.0f} µm, {_o50['Q_opt']:.0f} W", "best split of 250 µm for the 50 µm powder: wick layer, core, capillary limit"),
         ("8×", "vapour resistance when the core is halved (1/h³)"),
         ("1.1 K per kPa", "saturation temperature change per vapour pressure drop, water at 60 °C"),
         (f"{_cu[200]['factor']:.0f}× and {_cu[50]['factor']:.0f}×", "chamber against copper sheet at 5 W, for h = 200 µm and h = 50 µm (the 50 µm value is a trend)")]
@@ -99,7 +98,7 @@ for i, s in enumerate(SLIDES):
                              ("TOPPADDING", (0, 0), (-1, -1), 8), ("BOTTOMPADDING", (0, 0), (-1, -1), 8)]))
     block += [hdr, Paragraph("SAY", S["lab"]), say, Paragraph("POINT AT", S["lab"])]
     block += [Paragraph(fmt(x), S["bul"], bulletText="•") for x in s["point"]]
-    story += [PageBreak() if 2 <= i <= 5 else CondPageBreak(11 * cm), KeepTogether(block)]
+    story += [PageBreak() if 2 <= i <= 4 else CondPageBreak(11 * cm), KeepTogether(block)]
     if s["formulas"]:
         story.append(Paragraph("THE FORMULAS, IN ONE BREATH EACH", S["lab"]))
         for tex, meaning in s["formulas"]:

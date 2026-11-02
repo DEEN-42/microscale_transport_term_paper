@@ -22,13 +22,13 @@ EQ_CU = r"\Delta T_{Cu}=\dfrac{Q\,\ln(R_2/R_1)}{2\pi\,k\,H}"
 
 SLIDES = [
  dict(title="Title", secs=8,
-      say="Vapour chambers are the thin sheets that spread heat inside a phone. I will cover three transport questions about them.",
+      say="Vapour chambers are the thin sheets that spread heat inside a phone. I will cover two transport questions about them.",
       point=["Stay on the title; the band shows vapour going right and liquid returning left."],
       formulas=[], qa=[]),
  dict(title="Overview: the capillary pump must beat every loss", secs=28,
       say=("Heat evaporates water at the chip. Vapour flows through the core, condenses over the cooler surface, and the liquid returns through a porous wick. "
            "The only pump is the wick itself. So capillary pressure must beat the liquid loss, the vapour loss and gravity, and that sets a maximum heat load. "
-           "My three topics are the terms of this one equation: the liquid return, the thickness split, and the vapour core."),
+           "My two topics are two terms of this one equation: the liquid return, and the vapour core."),
       point=["Trace the loop with your finger: chip, vapour arrow, heat out, liquid back through the wicks.",
              "Point at badges 1, 2, 3 in turn during the last sentence, then at the two formulas."],
       formulas=[(EQ_BUDGET, "Around a closed loop the pressure must balance. Only the meniscus raises it; liquid flow, vapour flow and gravity all lower it."),
@@ -57,19 +57,7 @@ SLIDES = [
       formulas=[(EQ_BIP, "The pump comes from the fine pore radius, while the liquid resistance uses the coarse permeability. Each job gets its own length scale.")],
       qa=[("Why only an upper bound?", "It assumes the fine and coarse regions do not interfere, and it borrows K from 100 µm particles, which would not fit in a 50 µm layer. It shows the principle, not a buildable wick."),
           ("What exactly is the 37%?", "A simulation result (Patankar, Weibel and Garimella 2016): the peak-to-mean temperature difference on the condenser surface, relative to a monolithic wick, because the biporous wick allows a thicker vapour core.")]),
- dict(title="Topic 2: in a fixed thickness every wick has a best split", secs=32,
-      say=("The inner thickness is fixed, here 250 microns, so every micron of wick comes out of the vapour core. "
-           "Liquid resistance falls as one over t, but vapour resistance climbs as one over h cubed, so the total has a minimum. "
-           "Setting the derivative to zero gives a clean result: h squared over t depends only on permeability and the fluid. "
-           f"For the 50 micron powder that means a {_o50['t_um']:.0f} micron wick, a {round(_o50['h_um'], -1):.0f} micron core, and about {_o50['Q_opt']:.0f} watts."),
-      point=["Left: the three drawings, 57 W then 101 W then 27 W. Right: the curves; each dot is the best split for that wick.",
-             "Point at the h²/t card last."],
-      formulas=[(EQ_SPLIT, "The first term is the Darcy loss per watt with t_l = 2t (it falls as 1/t). The second is the Poiseuille loss per watt (it rises as 1/h³). Together they are the total flow resistance, with h = H − 2t."),
-                (EQ_OPT, "Differentiate with dh/dt = −2: the 3 from the cube and the 2 give 6, so h⁴/t² = 144 K ν_v/ν_l, and the square root gives the 12. ν = μ/ρ is the kinematic viscosity.")],
-      qa=[("Does the optimum depend on the heat load?", "No. Q, σ, θ and R2/R1 all cancel. Only the permeability and the fluid remain."),
-          ("Is this from a paper?", "No. It is my derivation from the same model, and I checked it against a direct numerical sweep for all three wicks (within the 2 µm grid)."),
-          ("Does it also minimise temperature?", f"No, it maximises the capillary limit only. At the optimum the vapour drop is {_o50['dP_v_at_Qopt_kPa']:.1f} kPa, about {_o50['dP_v_at_Qopt_kPa']*1e3/P_sat*100:.0f}% of P_sat, so read the watts as trends.")]),
- dict(title="Topic 3: halve the vapour gap and copper catches up", secs=34,
+ dict(title="Topic 2: halve the vapour gap and copper catches up", secs=34,
       say=("Vapour spreads radially in a thin slit, which is Poiseuille flow, so the pressure drop goes as one over h cubed. Halve the gap and it is eight times worse. "
            "In saturated vapour that pressure drop is a temperature drop, about 1.1 kelvin per kilopascal. "
            f"Against a copper sheet of the same thickness, at 5 watts, the chamber is about {_cu[200]['factor']:.0f} times better at 200 microns, but only about {_cu[50]['factor']:.0f} times better at 50. "
@@ -83,9 +71,19 @@ SLIDES = [
           ("What is inside the chamber's ΔT?", f"Vapour drop + wick conduction + evaporating interface (accommodation coefficient assumed 0.1). At 200 µm that is {_cu[200]['vapour']:.2f} + {_cu[200]['wick']:.2f} + {_cu[200]['interface']:.2f} K. The interface term is the biggest for thick cores."),
           ("Why is the 50 µm bar marked with an asterisk?", f"Its vapour pressure drop ({_cu[50]['vapour']:.1f} K equivalent) is above 20% of P_sat, so the linear Clausius–Clapeyron relation is not valid. Read it as a trend."),
           ("Is this a micro heat pipe or a vapour chamber?", "A micro heat pipe is the one-dimensional version of the same physics. The numbers here are for the flat chamber geometry.")]),
- dict(title="Three results and references", secs=8,
-      say="So: one length sets the wick, a simple formula sets the split, and h cubed sets the vapour limit. Thank you.",
-      point=["Read the three badges quickly; leave the reference list on screen for questions."],
+ dict(title="Applications", secs=28,
+      say=("Where does this matter? In a phone, a vapour chamber under the processor, under a millimetre thick. In a laptop, heat pipes carry heat from the chip to the fan. "
+           "In high-power LED lamps, a heat pipe lifts the heat off the board into the fins. And on satellites, heat pipes in the radiator panels work with no gravity at all, "
+           "because the wick, not gravity, brings the liquid back. In every case the same two limits apply: the wick and the vapour core."),
+      point=["Top left to bottom right: phone, laptop, LED lamp, satellite. Name the hot part in each drawing as you go.",
+             "End on the satellite: no gravity, so the wick does all the work."],
+      formulas=[],
+      qa=[("Are these drawings of real products?", "No. They are schematic layouts of the usual arrangement in each application, not specific devices."),
+          ("Why do satellites use heat pipes?", "They move heat with almost no temperature drop, have no moving parts, and the wick returns the liquid in zero gravity, so the gravity term in the pressure budget is zero."),
+          ("Which topic limits which application?", "A phone chamber is under a millimetre thick, so the vapour core (topic 2) is the tighter limit. Long runs, as in a laptop or a satellite panel, are more often limited by the liquid return in the wick (topic 1).")]),
+ dict(title="Two results and references", secs=8,
+      say="So: one length sets the wick, and h cubed sets the vapour limit. Thank you.",
+      point=["Read the two badges quickly; leave the reference list on screen for questions."],
       formulas=[], qa=[]),
 ]
 
