@@ -1,4 +1,4 @@
-"""Builds Viva_Prep_QA_and_Calculations_3min_Talk.pdf.
+"""Builds two PDFs: Viva_Prep_QA_Sources_and_Contribution.pdf (Q&A, sources, contribution) and Calculations_How_the_Numbers_Are_Calculated.pdf.
 Part A: likely questions for the 2-minute Q&A, with answers. Part B: how every number is calculated. Part C: what comes from
 the literature, what is textbook theory, what was assumed. Part D: what the contribution is, stated honestly.
 Numbers are read from numbers.json / focused_model.py, so they match the slides. Run after focused_model.py:
@@ -20,7 +20,7 @@ from PIL import Image as PILImage
 from focused_model import *
 from talk_script import _bar
 
-ROOT = os.path.join(HERE, ".."); OUT = os.path.join(ROOT, "Viva_Prep_QA_and_Calculations_3min_Talk.pdf")
+ROOT = os.path.join(HERE, ".."); OUT = os.path.join(ROOT, "Viva_Prep_QA_Sources_and_Contribution.pdf"); OUT_CALC = os.path.join(ROOT, "Calculations_How_the_Numbers_Are_Calculated.pdf")
 EQD = os.path.join(HERE, "eq_qa"); os.makedirs(EQD, exist_ok=True)
 
 fd = os.path.join(os.path.dirname(matplotlib.__file__), "mpl-data", "fonts", "ttf")
@@ -92,21 +92,20 @@ Q_50_100 = q_max(p_cap(WICKS[S50]["r"]), WICKS[S50]["K"], 100e-6)
 
 story = []
 # ================================================================== cover
-story += [Paragraph("Viva preparation: questions, calculations and contribution", S["title"]),
-          P("Micro heat pipes and vapour chambers · 3-minute talk with a 2-minute Q&A · Debanshu Ghosh, 23CH3FP56. "
-            "Written for you, the presenter: read Part A the night before, use Part B when someone asks “how did you get that number?”, and know Part D by heart.", "sub")]
+story += [Paragraph("Viva preparation: Q&A, sources and contribution", S["title"]),
+          P("Micro heat pipes and vapour chambers · 3-minute talk (slides only) with a 2-minute Q&A · Debanshu Ghosh, 23CH3FP56. "
+            "Written for you, the presenter. Everything here is about what is on the slides. The step-by-step calculations are in the separate PDF “Calculations_How_the_Numbers_Are_Calculated”.", "sub")]
 story.append(table([[C("Part", True), C("What it gives you", True)],
-                    [C("A"), C("25 likely questions with answers. The first nine (★, shaded) are the ones most likely to be asked. Each answer is sized to fit in 20 seconds.")],
-                    [C("B"), C("How every number on the slides is calculated: inputs, formulas, worked arithmetic, tables.")],
-                    [C("C"), C("What came from research papers, what is textbook theory, and what was assumed.")],
-                    [C("D"), C("Your contribution, what is not new, and one sentence to say it in.")]], [1.3, 15.3]))
+                    [C("A"), C("25 likely questions with answers. The ten marked ★ (shaded) are the most likely, and one of them is “what is your innovation?”. Each answer is sized to fit in 20 seconds.")],
+                    [C("B"), C("What came from research papers, what is textbook theory, and what was assumed.")],
+                    [C("C"), C("Your contribution slide by slide, the innovation stated honestly, what is not new, and one sentence to say it in.")]], [1.3, 15.3]))
 story.append(Spacer(1, 8))
 story.append(box([P("**How to survive a 2-minute Q&A**"),
     *bullets(["Expect 3 to 5 questions. Answer in 15 to 20 seconds: the number or the one-line reason first, the explanation second.",
               "Your numbers are for water at 60 °C and an illustrative 5 W phone-like disc. Say “in my model” before a number. Nobody can fault that; they can fault a number presented as a measurement.",
               "If you do not know: say what you do know, then “that is outside my model; I would check it in the literature.” Do not guess a value.",
               "Easy exits: “that is an assumption, stated on the slide”; “that is an upper bound, not a prediction”; “that is a simulation result from Patankar, not mine”.",
-              "Slides 3, 4 and 5 hold your three biggest numbers: 5× and 25×; 50, 38 and 161 W; 27×, 28×, 12× and about 2×."])], MISTc))
+              "Slides 3, 4 and 5 hold your three biggest results: 5× and 25×; 50, 38 and 161 W; 27×, 28×, 12× and about 2×. For the calculation behind any of them, see the calculations PDF."])], MISTc))
 
 # ================================================================== PART A
 story += [PageBreak(), part_bar("Part A · Questions and answers"), Spacer(1, 4)]
@@ -188,16 +187,18 @@ qa(False, "Topic 2", "What are the main assumptions behind the vapour-core resul
    "Steady, laminar, incompressible flow; smooth walls; and all the vapour travelling to the rim R2. In reality vapour condenses along the way, so the true pressure drop is lower by a factor of order one. "
    "Support pillars would add drag and raise it.",
    "So my number is conservative on the first point and optimistic on the second. I use the model for the 1/h³ trend, not for the exact watts.")
-qa(False, "Topic 2", "You removed the thickness-optimisation topic. What was it, in case I ask?",
+qa(False, "Topic 2", "The written paper has a thickness-optimisation section that is not in the talk. What is it?",
    f"With a fixed inner thickness of 250 µm, every micron of wick comes out of the vapour core. Liquid resistance falls as 1/t and vapour resistance rises as 1/h³, so the total has a minimum. "
    f"Setting the derivative to zero gives h²/t = 12√(Kν_v/ν_l). For the 50 µm powder: t ≈ {o50['t_um']:.0f} µm, h ≈ {o50['h_um']:.0f} µm, about {o50['Q_opt']:.0f} W.",
    "It is in the written paper. The result is my own derivation from the model, checked against a numerical sweep, and not compared with a published optimum. It maximises the capillary limit only, not thermal resistance.")
 qa(False, "Applications", "Why heat pipes in laptops but a vapour chamber in a phone?",
    "A laptop has room to run a heat pipe from the CPU to a fan and fins, so the job is moving heat along a line. A phone has no fan and under a millimetre of free thickness, so the job is spreading the heat across the whole body, which a flat chamber does.", None)
-qa(False, "Contribution", "What is your own contribution here?",
-   "A transparent first-principles model that puts the wick and the vapour core into one capillary-limit equation and quantifies them for a phone-sized chamber: the 5× and 25× wick trade-off, "
-   f"the idealised biporous bound ({bhv[0]:.0f}, {bhv[1]:.0f} and {bhv[2]:.0f} W), the 1/h³ vapour limit with its validity checks, and the comparison with a copper sheet. I did not run experiments, and the formulas themselves are standard.",
-   "See Part D for the full answer, including what is not new.")
+qa(True, "Contribution", "You just collected data from papers. What is the innovation, and what is your contribution?",
+   f"I did not collect the data. Apart from one number, the 37% from Patankar, every number on my slides is calculated by a model I assembled from standard equations. What is mine is the combination and its results: one equation that joins the wick and the vapour core; "
+   f"the 5× and 25× wick trade-off; an idealised biporous bound ({bhv[2]:.0f} W against {bhv[0]:.0f} and {bhv[1]:.0f} W); the 1/h³ vapour limit with its validity checks; and the finding that the chamber's advantage over copper falls from {cu[200]['factor']:.0f}× to about {cu[50]['factor']:.0f}× as the core thins. "
+   "It is a modest, analytical contribution: no new experiments and no new theory.",
+   f"The design insight is that the vapour core, not the wick, ends the advantage in a thin chamber. That conclusion does not hinge on my assumed interface coefficient: at 50 µm, {cu[50]['vapour']:.1f} K of the {cu[50]['vc']:.1f} K total is the vapour drop. "
+   "The limits: it is unvalidated, and I have not checked whether the same comparison has been published.")
 qa(False, "Contribution", "What would you do next?",
    "Validate the trends against a published experiment or a CFD model; add support pillars and several heat sources; replace the Darcy estimate for the thin wick with a pore-scale model; and run the temperature sweep.", None)
 qa(False, "Contribution", "What is the weakest part of your analysis?",
@@ -221,11 +222,19 @@ for topic in ("Big picture", "Topic 1", "Topic 2", "Applications", "Method", "Co
                                ("LEFTPADDING", (0, 0), (-1, -1), 9), ("RIGHTPADDING", (0, 0), (-1, -1), 9), ("TOPPADDING", (0, 0), (-1, -1), 6), ("BOTTOMPADDING", (0, 0), (-1, -1), 7)]))
         story += [KeepTogether([t]), Spacer(1, 5)]
 
-# ================================================================== PART B
-story += [PageBreak(), part_bar("Part B · How the numbers are calculated"), Spacer(1, 4)]
-story.append(P("Everything on the slides comes from one script (calc.py, with its companion script for the extra steps), using standard steam-table properties of saturated water at 60 °C and the geometry in B1. "
+# ================================================================== CALCULATIONS (separate PDF)
+storyA = story; story = []
+story += [Paragraph("How the numbers are calculated", S["title"]),
+          P("Micro heat pipes and vapour chambers · calculations behind the slides · Debanshu Ghosh, 23CH3FP56. "
+            "Each section gives the formula, one worked calculation you can repeat on a calculator, and the table the slide uses.", "sub")]
+story.append(table([["Slide", "Numbers on the slide", "Calculated in"],
+    ["3 (wick)", f"{rp:.0f}× pump pressure, {rr:.0f}× liquid resistance", "sections 2 and 3"],
+    ["4 (biporous)", f"{bhv[0]:.0f}, {bhv[1]:.0f}, {bhv[2]:.0f} W", "section 5"],
+    ["5 (vapour core)", f"8× per halving; 1.08 K per kPa; {cu[400]['factor']:.0f}×, {cu[200]['factor']:.0f}×, {cu[100]['factor']:.0f}×, ≈{cu[50]['factor']:.0f}×", "sections 4 and 6"]], [3.0, 9.6, 4.0]))
+story.append(Spacer(1, 4))
+story.append(P("Everything on the slides comes from one script (calc.py, with its companion script for the extra steps), using standard steam-table properties of saturated water at 60 °C and the geometry in section 1. "
                "The chain is always the same: **inputs → formula → number → check**. Below, each step shows the formula, one worked calculation you can repeat on a calculator, and the table the slide uses."))
-story.append(Paragraph("B1. Inputs", S["h2"]))
+story.append(Paragraph("1. Inputs", S["h2"]))
 story.append(table([["Quantity", "Value", "Kind of input"],
     ["Surface tension σ", "0.0662 N/m", "standard steam-table value"],
     ["Latent heat h_fg", "2.358 MJ/kg", "standard steam-table value"],
@@ -241,11 +250,11 @@ story.append(table([["Quantity", "Value", "Kind of input"],
     ["Gravity head", "Δz = 100 mm", "assumed (vertical case)"]], [4.6, 7.2, 4.8]))
 story.append(P(f"Derived once and reused: ln(R2/R1) = ln(48/5.642) = {lnR:.3f}, and the mass flow at 5 W, ṁ = Q/h_fg = 5/2.358×10⁶ = {mdot5:.3e} kg/s.", "body"))
 
-story.append(Paragraph("B2. The pump: capillary pressure (slide 3)", S["h2"]))
+story.append(Paragraph("2. The pump: capillary pressure (slide 3)", S["h2"]))
 story += [eqimg(r"\Delta P_{cap}=\dfrac{2\sigma\cos\theta}{r_{eff}}"),
           P(f"Worked: 50 µm powder, r_eff = 0.21 × 50 = 10.5 µm, so ΔP_cap = 2 × 0.0662 / 10.5×10⁻⁶ = {wk[S50]['p_cap_kPa']:.2f} kPa. 10 µm powder: r_eff = 2.1 µm gives {wk[S10]['p_cap_kPa']:.1f} kPa. Ratio = {rp:.0f} (it is 50/10 = 5, because ΔP_cap ∝ 1/d).")]
 
-story.append(Paragraph("B3. The loss: permeability and liquid resistance (slide 3)", S["h2"]))
+story.append(Paragraph("3. The loss: permeability and liquid resistance (slide 3)", S["h2"]))
 story += [eqimg(r"K=\dfrac{d^{2}\varepsilon^{3}}{150(1-\varepsilon)^{2}}", 7), Spacer(1, 3),
           eqimg(r"\Delta P_l=a_l\,Q,\qquad a_l=\dfrac{\mu_l\,\ln(R_2/R_1)}{2\pi\,\rho_l\,K\,t_l\,h_{fg}},\qquad t_l=2t", 12),
           P(f"Worked: 50 µm powder, K = (50×10⁻⁶)² × 0.125 / (150 × 0.25) = {WICKS[S50]['K']:.3e} m² (that is d²/300). With t_l = 100 µm: "
@@ -253,7 +262,7 @@ story += [eqimg(r"K=\dfrac{d^{2}\varepsilon^{3}}{150(1-\varepsilon)^{2}}", 7), S
           table([["Wick", "r_eff (µm)", "K (m²)", "ΔP_cap (kPa)", "a_l (Pa/W)"]] +
                 [[n, f"{wk[n]['r_um']:.1f}", f"{wk[n]['K']:.2e}", f"{wk[n]['p_cap_kPa']:.1f}", f"{wk[n]['a_l_Pa_per_W']:.1f}"] for n in (MESH, S50, S10)], [5.4, 2.4, 3.0, 2.9, 2.9])]
 
-story.append(Paragraph("B4. The vapour resistance and its temperature cost (slide 5)", S["h2"]))
+story.append(Paragraph("4. The vapour resistance and its temperature cost (slide 5)", S["h2"]))
 story += [eqimg(r"\Delta P_v=a_v\,Q,\qquad a_v=\dfrac{6\,\mu_v\,\ln(R_2/R_1)}{\pi\,\rho_v\,h^{3}\,h_{fg}},\qquad \Delta T_{sat}\approx\dfrac{T\,\Delta P}{\rho_v\,h_{fg}}", 14.5),
           P(f"Worked: h = 100 µm, a_v = 6 × 1.08×10⁻⁵ × {lnR:.3f} / (π × 0.1304 × (10⁻⁴)³ × 2.358×10⁶) = {av100:.0f} Pa/W. At 5 W: ΔP_v = {av100*5:.0f} Pa. "
             f"The conversion factor is T/(ρ_v h_fg) = 333.15 / (0.1304 × 2.358×10⁶) = 1.08×10⁻³ K/Pa, so ΔT = {vc[100]['dT_5W_K']:.2f} K. Halving h to 50 µm multiplies a_v by 2³ = 8."),
@@ -263,7 +272,7 @@ story += [eqimg(r"\Delta P_v=a_v\,Q,\qquad a_v=\dfrac{6\,\mu_v\,\ln(R_2/R_1)}{\p
           P(f"The 20% limit is ΔP_v = 0.2 × 19.95 kPa = 3.99 kPa; solving a_v Q = 3.99 kPa for h at 5 W gives h ≈ {N['h_invalid_um']['5W']:.0f} µm. Below that the linearised relation is not trusted. "
             f"Validity checks at h = 100 µm: Mach = u/√(γ R_v T) = {vc[100]['Ma_5W']:.3f} (u = {vc[100]['u_5W_m_s']:.1f} m/s, incompressible); Knudsen = λ/h = {N['lambda_um']:.2f}/100 = {vc[100]['Kn']:.4f} (continuum, no slip).", "cap")]
 
-story.append(Paragraph("B5. The capillary limit and the biporous bars (slide 4)", S["h2"]))
+story.append(Paragraph("5. The capillary limit and the biporous bars (slide 4)", S["h2"]))
 story += [eqimg(r"Q_{max}=\dfrac{\Delta P_{cap}-\rho_l g\,\Delta z}{a_l+a_v}", 8),
           P(f"Worked, 50 µm powder with h = 100 µm (horizontal, Δz = 0): Q_max = {wk[S50]['p_cap_kPa']*1000:.0f} / ({wk[S50]['a_l_Pa_per_W']:.1f} + {av100:.0f}) = {Q_50_100:.0f} W. "
             "The three biporous bars use the same equation with a different (r_eff, K) pair, all at h = 100 µm and 2 × 50 µm wick:"),
@@ -275,9 +284,9 @@ story += [eqimg(r"Q_{max}=\dfrac{\Delta P_{cap}-\rho_l g\,\Delta z}{a_l+a_v}", 8
           P(f"Check the biporous bar: {p_cap(5e-6):.0f} / ({a_l(Kcoarse):.1f} + {av100:.0f}) = {bhv[2]:.0f} W. The fine wick takes its permeability from a 23 µm powder because its pore radius is 0.21 × 23 ≈ 5 µm, so r and K are consistent with each other. "
             "The biporous bar combines the fine r with the coarse K, which is why it is an idealised upper bound.", "cap")]
 
-story.append(Paragraph("B6. Chamber against a solid copper sheet (slide 5)", S["h2"]))
+story.append(Paragraph("6. Chamber against a solid copper sheet (slide 5)", S["h2"]))
 story += [eqimg(r"\Delta T_{Cu}=\dfrac{Q\,\ln(R_2/R_1)}{2\pi\,k\,H},\qquad \Delta T_{chamber}=\Delta T_{vapour}+\Delta T_{wick}+\Delta T_{interface}", 14.5),
-          P(f"The copper sheet has the chamber's total thickness H = h + 2 × 50 + 2 × 80 µm and k = 400 W/m K. The chamber terms: vapour from B4; wick conduction ΔT_w = q″ t_w/k_wick with q″ = Q/A = {q_flux:.0f} W/m² and "
+          P(f"The copper sheet has the chamber's total thickness H = h + 2 × 50 + 2 × 80 µm and k = 400 W/m K. The chamber terms: vapour from section 4; wick conduction ΔT_w = q″ t_w/k_wick with q″ = Q/A = {q_flux:.0f} W/m² and "
             f"k_wick = {kw:.0f} W/m K from the Maxwell estimate for ε = 0.5; interface ΔT_i = q″/h_i with h_i = {hi01/1e5:.2f}×10⁵ W/m² K from kinetic theory (Hertz–Knudsen–Schrage) with an assumed accommodation coefficient of 0.1."),
           P(f"Worked, h = 200 µm: H = 0.46 mm, ΔT_Cu = 5 × {lnR:.3f} / (2π × 400 × 0.00046) = {cu[200]['cu']:.1f} K. Chamber: {cu[200]['vapour']:.3f} + {cu[200]['wick']:.3f} + {cu[200]['interface']:.3f} = {cu[200]['vc']:.2f} K. Ratio = {cu[200]['factor']:.0f}."),
           table([["h (µm)", "H (mm)", "Copper (K)", "Vapour (K)", "Wick (K)", "Interface (K)", "Chamber (K)", "Copper ÷ chamber"]] +
@@ -285,18 +294,12 @@ story += [eqimg(r"\Delta T_{Cu}=\dfrac{Q\,\ln(R_2/R_1)}{2\pi\,k\,H},\qquad \Delt
                 [1.5, 1.5, 2.0, 2.0, 1.8, 2.3, 2.2, 3.3]),
           P("* ΔP_v above 20% of P_sat, so a trend only. Why copper catches up: copper's ΔT rises only from 6.5 to 13.7 K as H falls from 0.66 to 0.31 mm, while the chamber's vapour term rises from 0.01 to 6.2 K because it goes as 1/h³.", "cap")]
 
-story.append(Paragraph("B7. The thickness optimum (written paper only)", S["h2"]))
-story += [P("Not in the 3-minute deck, but it is in the paper, so you may be asked. With H = 2t + h fixed, the total flow resistance is a_l + a_v = C_l/t + C_v/h³. Differentiating with dh/dt = −2 and setting it to zero gives h⁴/t² = 6C_v/C_l, "
-            "which simplifies to h²/t = 12√(Kν_v/ν_l), where ν = μ/ρ."),
-          table([["Wick", "h²/t (µm)", "t (µm)", "h (µm)", "Q_max (W)", "sweep check (t)"]] +
-                [[SHORT[n], f"{out['wick'][n]['G_um']:.0f}", f"{out['wick'][n]['t_um']:.1f}", f"{out['wick'][n]['h_um']:.0f}", f"{out['wick'][n]['Q_opt']:.0f}", f"{out['wick'][n]['tw_sweep_um']:.0f} µm"] for n in (MESH, S50, S10)],
-                [4.8, 2.4, 2.2, 2.2, 2.4, 2.6]),
-          P("The closed form lands on the numerical sweep within the 2 µm grid for all three wicks. It is derived here from the model; it has not been compared with a published optimum.", "cap")]
+storyB = story; story = storyA
 
 # ================================================================== PART C
-story += [PageBreak(), part_bar("Part C · What came from where"), Spacer(1, 4)]
+story += [PageBreak(), part_bar("Part B · What came from where"), Spacer(1, 4)]
 story.append(P("Three kinds of input go into the work, and an examiner is entitled to ask which is which. The honest split is below."))
-story.append(Paragraph("C1. Numbers taken from research papers", S["h2"]))
+story.append(Paragraph("B1. Numbers taken from research papers", S["h2"]))
 story.append(table([["Number or claim", "Where it appears", "Source", "Note"],
     ["37% lower peak-to-mean condenser surface ΔT with a biporous condenser wick", "slide 4 tile", "Patankar, Weibel & Garimella (2016), Int. J. Heat Mass Transfer 101, 927–936", "a 3-D simulation, not an experiment; relative to a monolithic wick"],
     ["Up to 34% performance reduction by thermal throttling on a Nexus 6P", "paper introduction (not on the slides)", "Bhat, Gumussoy & Ogras (2019), DATE 2019", "motivation only"],
@@ -305,8 +308,8 @@ story.append(table([["Number or claim", "Where it appears", "Source", "Note"],
     ["Effective conductivity falls as support-column diameter grows", "paper, one sentence", "Zhang et al. (2024), Micromachines 15, 627", "not on the slides"],
     ["Vapour chambers move heat as latent heat, with no moving parts", "paper introduction", "Faghri (2012); Weibel & Garimella (2013); Zhou et al. (2023)", "review papers"]],
     [4.6, 3.0, 5.0, 4.0]))
-story.append(P("Only the 37% is a quantitative result borrowed from a paper that appears on the slides. Every other number on the slides comes from the model in Part B.", "cap"))
-story.append(Paragraph("C2. Theory taken from textbooks and the course (not new, not mine)", S["h2"]))
+story.append(P("Only the 37% is a quantitative result borrowed from a paper that appears on the slides. Every other number on the slides comes from the model, shown step by step in the calculations PDF.", "cap"))
+story.append(Paragraph("B2. Theory taken from textbooks and the course (not new, not mine)", S["h2"]))
 story.append(table([["Result", "Used for"],
     ["Young–Laplace: pressure jump 2σ/R across a curved interface", "capillary pressure"],
     ["Darcy's law, radial form", "liquid pressure loss in the wick"],
@@ -318,7 +321,7 @@ story.append(table([["Result", "Used for"],
     ["Mach and Knudsen number criteria; Bond number", "validity checks"],
     ["Course material (DasGupta & Ganguly, Lectures 1–4)", "scaling, continuum and slip arguments as background"],
     ["Peterson (1994), Faghri (1995)", "standard textbooks cited for classical wick correlations"]], [10.0, 6.6]))
-story.append(Paragraph("C3. Values that are assumptions, not data", S["h2"]))
+story.append(Paragraph("B3. Values that are assumptions, not data", S["h2"]))
 story += bullets([
     "**Properties of water at 60 °C**: standard saturated-water steam-table values, rounded. The paper does not name one specific table, so if asked say “standard steam tables”.",
     "**The operating point**: 5 W, a 10 × 10 mm source, a 48 mm rim, 2 × 50 µm wicks, 2 × 80 µm walls, 100 mm gravity head. All are illustrative and were chosen to be phone-like.",
@@ -329,38 +332,56 @@ story += bullets([
     "**The 20% of P_sat limit** for the linearised Clausius–Clapeyron relation: a judgement, chosen as a conservative cut-off.",
     "**Copper conductivity 400 W/m K**: a typical handbook value."])
 
-# ================================================================== PART D
-story += [PageBreak(), part_bar("Part D · What your contribution is"), Spacer(1, 4)]
-story.append(Paragraph("D1. What you did", S["h2"]))
+# ================================================================== PART C (contribution)
+story += [PageBreak(), part_bar("Part C · Your contribution, according to the slides"), Spacer(1, 4)]
+story.append(P("The question to expect: “you only collected data, so what is the innovation?” The first thing to say is that it is not true that you collected data. "
+               "Only one number on your slides, the 37%, comes from a paper. Everything else is calculated by a model. Here is what each slide takes from where, and what you added."))
+story.append(Paragraph("C1. Slide by slide", S["h2"]))
+story.append(table([["Slide", "From the literature or textbooks", "What you added"],
+    ["2 · Overview", "The capillary-limit idea for heat pipes",
+     "Joined the wick and the vapour core in one equation, with both losses as flow resistances in Pa/W (a_l, a_v), so that each topic is one term of it; numbers for a phone-sized disc."],
+    ["3 · Wick", "Young–Laplace, radial Darcy flow, Kozeny–Carman",
+     f"Integrated the flow laws over the disc, from R1 to R2. Quantified the trade-off: {rp:.0f}× pump pressure against {rr:.0f}× liquid resistance from 50 µm to 10 µm powder, and showed that for liquid alone Q ∝ d."],
+    ["4 · Biporous", "The biporous idea (Semenic & Catton); the 37% (Patankar et al.)",
+     f"Built an idealised capillary limit with the pressure from the fine pores and the permeability from the coarse channels: {bhv[2]:.0f} W against {bhv[0]:.0f} and {bhv[1]:.0f} W, stated as an upper bound."],
+    ["5 · Vapour core", "Plane Poiseuille flow; Clausius–Clapeyron",
+     f"Derived ΔP_v ∝ 1/h³ for radial flow and converted it to temperature ({out['K_per_kPa']:.1f} K per kPa). Set its validity limits (Mach, Knudsen, 20% of P_sat, so h above about {N['h_invalid_um']['5W']:.0f} µm at 5 W). "
+     f"Compared the chamber with an equal-thickness copper sheet: {cu[400]['factor']:.0f}×, {cu[200]['factor']:.0f}×, {cu[100]['factor']:.0f}× and about {cu[50]['factor']:.0f}×."],
+    ["6 · Applications", "General knowledge of where heat pipes and chambers are used",
+     "Linked each application to the limit that matters most in it (phone: vapour core; laptop and LED: liquid return; satellite: no gravity term). The diagrams are schematic."]],
+    [2.4, 5.0, 9.2]))
+story.append(Paragraph("C2. The innovation, stated honestly", S["h2"]))
 story += bullets([
-    "**Framed the three topics as terms of one equation.** The pressure budget ΔP_cap ≥ ΔP_l + ΔP_v + ΔP_g and Q_max = (ΔP_cap − ρ_l g Δz)/(a_l + a_v) tie liquid return, thickness and vapour flow together, so each result has a place.",
-    "**Integrated the radial flow laws for a disc.** The Darcy and Poiseuille laws were integrated from the source radius R1 to the rim R2, giving the ln(R2/R1) forms and, through them, flow resistances a_l and a_v in Pa/W.",
-    f"**Quantified the wick trade-off**: {rp:.0f}× the pump pressure but {rr:.0f}× the liquid resistance from 50 µm to 10 µm powder, and the result that for liquid alone Q ∝ d.",
-    f"**Built the idealised biporous bound**: {bhv[0]:.0f}, {bhv[1]:.0f} and {bhv[2]:.0f} W at h = 100 µm, with the limits of the idea stated.",
-    f"**Worked out the 1/h³ vapour limit with its checks**: ΔT of about {out['K_per_kPa']:.1f} K per kPa, Mach and Knudsen numbers, and the h below which the linear model fails (about {N['h_invalid_um']['5W']:.0f} µm at 5 W).",
-    f"**Compared the chamber with an equal-thickness copper sheet**: {cu[400]['factor']:.0f}×, {cu[200]['factor']:.0f}×, {cu[100]['factor']:.0f}× and about {cu[50]['factor']:.0f}×, showing that a thin core erases the advantage.",
-    f"**Derived the thickness optimum** h²/t = 12√(Kν_v/ν_l) (paper only), and checked it against a numerical sweep: t ≈ {o50['t_um']:.0f} µm, h ≈ {o50['h_um']:.0f} µm, about {o50['Q_opt']:.0f} W for the 50 µm powder.",
-    "**Kept the whole chain reproducible**: one script produces every number, table and figure in the paper and the slides."])
-story.append(Paragraph("D2. What is not new, so do not claim it", S["h2"]))
+    "**It is a synthesis and a quantification, not new science.** You took standard laws and built them into one transparent model, then used it to get numbers a reader can check.",
+    f"**The strongest result is the copper comparison.** It turns the abstract 1/h³ law into a design statement: a chamber beats solid copper by {cu[200]['factor']:.0f}× at a 200 µm core but by only about {cu[50]['factor']:.0f}× at 50 µm, so the vapour core, not the wick, sets how thin a chamber can usefully be. "
+    f"This does not hinge on the assumed interface coefficient, because at 50 µm the vapour drop is {cu[50]['vapour']:.1f} K of the {cu[50]['vc']:.1f} K total.",
+    "**The second is the wick trade-off made quantitative**, with the biporous bound showing what separating pump and flow could be worth.",
+    "**It is consistent with the literature.** Patankar et al. found that making room for a thicker vapour core is the lever that matters at ultra-thin form factors, which is what your model gives as well."])
+story.append(Paragraph("C3. What is not new, so do not claim it", S["h2"]))
 story += bullets([
     "The governing equations (Young–Laplace, Darcy, Poiseuille, Kozeny–Carman, Clausius–Clapeyron) are standard.",
     "The idea of a biporous wick and the 37% condenser result are from the literature (Semenic & Catton; Patankar et al.).",
     "There are no experiments. The model is not validated, and its inputs are illustrative. It shows scalings and trends, not device performance.",
-    "The h²/t closed form is your derivation inside the model. it has not been compared with a published optimum, so do not say it is “new”; say it is “derived here and checked against a numerical sweep”."])
-story.append(Paragraph("D3. One sentence to say it in", S["h2"]))
-story.append(box([Paragraph(fmt("“My contribution is a simple, transparent model that puts the wick and the vapour core into one capillary-limit equation, "
+    "I have not checked whether the same copper comparison has been published, so present it as the conclusion of your model, not as a first.",
+    "The written paper also has a thickness-optimisation result, h²/t = 12√(Kν_v/ν_l). It is not on the slides, so you do not need to claim it; if asked, say it is derived within the model and checked against a numerical sweep."])
+story.append(Paragraph("C4. One sentence to say it in", S["h2"]))
+story.append(box([Paragraph(fmt("“I did not collect data: apart from one number from Patankar, everything on my slides is calculated. My contribution is a simple, transparent model that puts the wick and the vapour core into one capillary-limit equation, "
                                "and uses it to show for a phone-sized chamber that finer pores cost more flow than they gain in pumping, that a biporous wick could separate the two, "
-                               "and that the vapour core, through its 1/h³ resistance, decides whether a thin chamber still beats copper.”"), ParagraphStyle("big", parent=S["ans"], fontName="Serif-B", fontSize=11, leading=16))], MISTc))
+                               "and that the vapour core, through its 1/h³ resistance, decides how thin a chamber can be before it loses its advantage over copper.”"), ParagraphStyle("big", parent=S["ans"], fontName="Serif-B", fontSize=11, leading=16))], MISTc))
 story.append(Spacer(1, 8))
-story.append(box([P("**Be ready to explain every formula yourself.** The model and scripts were built with Claude's help in this project, so before the talk work through Part B with a calculator until you can reproduce the worked examples. "
+story.append(box([P("**Be ready to explain every formula yourself.** The model and scripts were built with Claude's help in this project, so before the talk work through the calculations PDF with a calculator until you can reproduce the worked examples. "
                     "The slides' speaker notes also hold each formula's derivation. If your course asks for a declaration on the use of AI tools, that is for you to check and make.")]))
 
-def footer(canvas, doc):
-    canvas.saveState(); canvas.setFont("Sans", 7.5); canvas.setFillColor(INKc)
-    canvas.drawString(2.2 * cm, 1.3 * cm, "Debanshu Ghosh · 23CH3FP56 · Viva preparation: Q&A, calculations, contribution")
-    canvas.drawRightString(A4[0] - 2.2 * cm, 1.3 * cm, str(doc.page)); canvas.restoreState()
-doc = BaseDocTemplate(OUT, pagesize=A4, leftMargin=2.2 * cm, rightMargin=2.2 * cm, topMargin=1.8 * cm, bottomMargin=2.0 * cm,
-                      title="Viva preparation: micro heat pipes and vapour chambers", author="Debanshu Ghosh")
-doc.addPageTemplates([PageTemplate(id="m", frames=[Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="f", leftPadding=0, rightPadding=0)], onPage=footer)])
-doc.build(story)
-print("written", OUT, os.path.getsize(OUT) // 1024, "KB")
+def build(path, flow, title, foot):
+    def footer(canvas, doc):
+        canvas.saveState(); canvas.setFont("Sans", 7.5); canvas.setFillColor(INKc)
+        canvas.drawString(2.2 * cm, 1.3 * cm, foot)
+        canvas.drawRightString(A4[0] - 2.2 * cm, 1.3 * cm, str(doc.page)); canvas.restoreState()
+    doc = BaseDocTemplate(path, pagesize=A4, leftMargin=2.2 * cm, rightMargin=2.2 * cm, topMargin=1.8 * cm, bottomMargin=2.0 * cm, title=title, author="Debanshu Ghosh")
+    doc.addPageTemplates([PageTemplate(id="m", frames=[Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height, id="f", leftPadding=0, rightPadding=0)], onPage=footer)])
+    doc.build(flow)
+    print("written", path, os.path.getsize(path) // 1024, "KB")
+
+
+build(OUT, story, "Viva preparation: Q&A, sources and contribution", "Debanshu Ghosh · 23CH3FP56 · Viva preparation: Q&A, sources, contribution")
+build(OUT_CALC, storyB, "How the numbers are calculated", "Debanshu Ghosh · 23CH3FP56 · How the numbers are calculated")
